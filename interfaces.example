@@ -1,0 +1,22 @@
+allow-ovs sw-0
+iface sw-0 inet manual
+    ovs_type OVSBridge
+    ovs_ports ens19 ens20 ens21
+    post-up ovs-vsctl set-controller $IFACE tcp:127.0.0.1:6633
+    post-up ovs-vsctl show
+    post-up ovs-ofctl dump-flows $IFACE
+
+allow-sw-0 ens19
+iface ens19 inet manual
+    ovs_bridge sw-0
+    ovs_type OVSPort
+
+allow-sw-0 ens20
+iface ens20 inet manual
+    ovs_bridge sw-0
+    ovs_type OVSPort
+
+allow-sw-0 ens21
+iface ens21 inet manual
+    ovs_bridge sw-0
+    ovs_type OVSPort

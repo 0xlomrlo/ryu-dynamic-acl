@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  ryu-controller:
+    build:
+      context: .
+    # unnecessary entrypoint for troubleshooting only
+    # entrypoint: "sh -c '(tcpdump -i eth0 -w /root/tmp/dump.cap &) && ryu-manager /root/plugins/runnable.py'"
+    volumes:
+      - ./tmp:/root/tmp
+    environment:
+      - LEARN_PRI=3
+      - LEARN_IDLE_TIMEOUT=3
+      - PROTECTED_SRV_PRI=5
+      - PROTECTED_SRV_COOKIE_ID=5
+      - ISOLATION_PRI=10
+      - ISOLATION_COOKIE_ID=10
+      - ISOLATION_IDLE_TIMEOUT=10
+      - ARP_PRI=50
+    ports:
+      - "6633:6633"
+      - "8080:8080"
