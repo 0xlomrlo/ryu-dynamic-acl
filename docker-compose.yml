@@ -7,6 +7,7 @@ services:
     # unnecessary entrypoint for troubleshooting only
     # entrypoint: "sh -c '(tcpdump -i eth0 -w /root/tmp/dump.cap &) && ryu-manager /root/plugins/runnable.py'"
     volumes:
+      # - ./plugins:/root/plugins
       - ./tmp:/root/tmp
     environment:
       - LEARN_PRI=3
@@ -14,8 +15,10 @@ services:
       - PROTECTED_SRV_PRI=5
       - PROTECTED_SRV_COOKIE_ID=5
       - ISOLATION_PRI=10
+      - ISOLATION_HARD_PRI=40
       - ISOLATION_COOKIE_ID=10
-      - ISOLATION_IDLE_TIMEOUT=10
+      - ISOLATION_IDLE_TIMEOUT=30
+      - ISOLATION_HARD_TIMEOUT=15
       - ARP_PRI=50
     ports:
       - "6633:6633"

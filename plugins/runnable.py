@@ -145,20 +145,15 @@ class DynamicACL(app_manager.RyuApp):
                     self.logger.warning("[flow_stats_reply_handler] - The device \"%s\" has encountered matched dead flows and will be removed", _key)
                     self._remove_dead_flows(ev.msg.datapath, match)
 
-    def _add_flow(self, datapath, priority, match, actions: list, cookie: int = 0, idle: int = 0, buffer_id=None) -> None:
+    def _add_flow(self, datapath, priority, match, actions: list, cookie: int = 0, idle: int = 0, hard: int = 0) -> None:
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         inst = [
             parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)
         ]
 
-        if buffer_id:
-            mod = parser.OFPFlowMod(datapath=datapath, cookie=cookie, buffer_id=buffer_id,
-                                    priority=priority, match=match,
-                                    idle_timeout=idle, instructions=inst)
-        else:
-            mod = parser.OFPFlowMod(datapath=datapath, cookie=cookie, priority=priority,
-                                    match=match, idle_timeout=idle, instructions=inst)
+        mod = parser.OFPFlowMod(datapath=datapath, cookie=cookie, priority=priority,
+                                match=match, idle_timeout=idle, hard_timeout=hard, instructions=inst)
         datapath.send_msg(mod)
 
     def _remove_dead_flows(self, datapath, match) -> None:
@@ -213,6 +208,9 @@ class DynamicACL(app_manager.RyuApp):
             self.logger.info("[add_isolated_path] - Adding isolated path for: %s to: %s", eth_src, eth_dst)
 
             if eth_src_port and eth_dst_port:
+                # block all connections for a period of time to be sure all active connections are terminated
+                self._add_flow(datapath, conf.ISOLATION_HARD_PRI, parser.OFPMatch(in_port=eth_src_port, eth_src=eth_src, eth_dst=eth_dst),
+                                [], conf.ISOLATION_COOKIE_ID, 0, conf.ISOLATION_HARD_TIMEOUT)
                 # connection initiator to protected device flow
                 self._add_flow(datapath, conf.ISOLATION_PRI, parser.OFPMatch(in_port=eth_src_port, eth_src=eth_src, eth_dst=eth_dst),
                                [parser.OFPActionOutput(eth_dst_port)], conf.ISOLATION_COOKIE_ID, conf.ISOLATION_IDLE_TIMEOUT)
