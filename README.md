@@ -1,0 +1,3 @@
+# ryu-dynamic-acl
+
+This project is a part of personal research that aims to introduce an alternative approach to network security that addresses the shortcomings of layer three security appliances in safeguarding LAN traffic, particularly concerning data leakage prevention using SDN and Ryu controller. The suggested approach dynamically limits Internet access for machines within the organization's LAN, permitting them to interact solely with devices in the same network without an active Internet connection. This strategy is intended to bolster network security more effectively and efficiently. 
